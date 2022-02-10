@@ -1,21 +1,22 @@
 package com.naim.livedatavsflow.ui.activity
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.naim.livedatavsflow.MainActivity
 import com.naim.livedatavsflow.databinding.ActivityGeneralBinding
 import com.naim.livedatavsflow.viewmodel.GeneralViewModel
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
 
 class GeneralActivity : AppCompatActivity() {
     private var binding: ActivityGeneralBinding? = null
     private val viewModel: GeneralViewModel by viewModels()
+    private var isData: String = "A"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityGeneralBinding.inflate(layoutInflater)
@@ -23,15 +24,68 @@ class GeneralActivity : AppCompatActivity() {
 
 
         binding?.button?.setOnClickListener {
+            lifecycleScope.launchWhenCreated {
+                viewModel.titleStateFlow.collect {
+                    println("Resume flow $it")
+                    binding?.textView?.text = it
+                }
+            }
 //            viewModel.setGotoNextActivitySharedFlow(true)
-            viewModel.setGotoNextActivitySharedFlow(true)
+//            viewModel.setGotoNextActivitySharedFlow(true)
+//            lifecycleScope.launch {
+//                viewModel.countDownTime.collect {
+//                    binding?.textView?.text = "$it"
+//                }
+//            }
         }
         binding?.button2?.setOnClickListener {
-//            viewModel.setGotoNextActivity(true)
-//            binding?.textView?.text = "Hello"
-            Intent(this@GeneralActivity, MainActivity::class.java).apply { startActivity(this) }
+//            viewModel.setGotoNextActivitySharedFlow(false)
+//            lifecycleScope.launch {
+//                viewModel.countDownTime.collect {
+//                    binding?.textView?.text = "$it"
+//                }
+//            }
+            isData = "B"
+            println("Count down B added")
         }
 
+//        lifecycleScope.launchWhenCreated {
+//            viewModel.titleSharedFlow.collect {
+//                println("Resume flow $it")
+//                binding?.textView?.text = it
+//            }
+//        }
+//        viewModel.title.observe(this) {
+//            println("Resume live $it")
+//            binding?.textView?.text = it
+//        }
+//        lifecycleScope.launchWhenCreated {
+//            viewModel.titleStateFlow.collect {
+//                println("Resume state $it")
+//                binding?.textView?.text = it
+//            }
+//        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            repeat(120000) {
+                delay(200)
+                println("Count down ${Thread.currentThread()} ${isData}")
+            }
+        }
+
+        lifecycleScope.launch(Dispatchers.Default) {
+            repeat(120000) {
+                delay(100)
+                println("Count down ${Thread.currentThread()} ${isData}")
+            }
+        }
+
+
+        thread{
+            while (true){
+                Thread.sleep(100)
+                println("Count down 2 ${Thread.currentThread()} ${isData}")
+            }
+        }
 
 //        Thread.sleep(30000)
 
@@ -47,22 +101,7 @@ class GeneralActivity : AppCompatActivity() {
 //                Intent(this@GeneralActivity, MainActivity::class.java).apply { startActivity(this) }
 //            }
 //        }
-        lifecycleScope.launchWhenCreated {
-            viewModel.titleSharedFlow.collect {
-                println("Resume flow")
-                binding?.textView?.text = it
-            }
-        }
-        viewModel.title.observe(this) {
-            println("Resume live $it")
-            binding?.textView?.text = it
-        }
-        lifecycleScope.launchWhenCreated {
-            viewModel.titleStateFlow.collect {
-                println("Resume state")
-                binding?.textView?.text = it
-            }
-        }
+
 
     }
 }

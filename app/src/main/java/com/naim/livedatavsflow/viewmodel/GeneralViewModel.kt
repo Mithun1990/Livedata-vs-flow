@@ -4,9 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class GeneralViewModel : ViewModel() {
@@ -32,10 +30,10 @@ class GeneralViewModel : ViewModel() {
 
     fun setGotoNextActivitySharedFlow(value: Boolean) {
         viewModelScope.launch {
-            delay(10000)
+//            delay(10000)
             _title.value = "Hello"
-            _titleSharedFlow.emit("Hello data")
-            _titleStateFlow.value = "Hello"
+            _titleSharedFlow.emit(System.currentTimeMillis().toString())
+            _titleStateFlow.value = System.currentTimeMillis().toString()
         }
     }
 
@@ -45,6 +43,14 @@ class GeneralViewModel : ViewModel() {
             _title.value = "Hello"
             _titleSharedFlow.emit("Hello data")
 
+        }
+    }
+
+    val countDownTime: Flow<Int> = flow {
+        repeat(100) {
+            delay(1000)
+            println("Emit $it")
+            emit(it)
         }
     }
 
