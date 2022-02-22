@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.naim.livedatavsflow.model.Book
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BookDao {
@@ -13,5 +14,8 @@ interface BookDao {
     fun getAll(): LiveData<List<Book>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun add(book: Book)
+    suspend fun add(book: Book)
+
+    @Query("select * from book")
+    fun getAllNew(): Flow<List<Book>>
 }

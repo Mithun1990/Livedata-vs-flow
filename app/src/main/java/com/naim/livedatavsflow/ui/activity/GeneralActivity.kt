@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.naim.livedatavsflow.MyApplication
 import com.naim.livedatavsflow.databinding.ActivityGeneralBinding
+import com.naim.livedatavsflow.model.Book
+import com.naim.livedatavsflow.room.AppDatabase
 import com.naim.livedatavsflow.viewmodel.GeneralViewModel
+import com.naim.livedatavsflow.viewmodel.factory.GeneralViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -14,8 +18,14 @@ import kotlin.concurrent.thread
 
 class GeneralActivity : AppCompatActivity() {
     private var binding: ActivityGeneralBinding? = null
-    private val viewModel: GeneralViewModel by viewModels()
     private var isData: String = "A"
+    private val viewModel: GeneralViewModel by viewModels() {
+        GeneralViewModelFactory(
+            AppDatabase.getDatabase(
+                this
+            )
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,14 +49,20 @@ class GeneralActivity : AppCompatActivity() {
 //            }
         }
         binding?.button2?.setOnClickListener {
+            viewModel.setBook(
+                Book(
+                    bookName = System.currentTimeMillis().toString() + "A",
+                    authorName = "122B"
+                )
+            )
 //            viewModel.setGotoNextActivitySharedFlow(false)
 //            lifecycleScope.launch {
 //                viewModel.countDownTime.collect {
 //                    binding?.textView?.text = "$it"
 //                }
 //            }
-            isData = "B"
-            println("Count down B added")
+//            isData = "B"
+//            println("Count down B added")
         }
 
 //        lifecycleScope.launchWhenCreated {
@@ -65,6 +81,15 @@ class GeneralActivity : AppCompatActivity() {
 //                binding?.textView?.text = it
 //            }
 //        }
+        viewModel.getBookList().observe(this) {
+            println("Value live  ${it.size}")
+        }
+        lifecycleScope.launchWhenCreated {
+            viewModel.getBookListFlow().collect {
+                println("Value flow  ${it.size}")
+            }
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
             repeat(120000) {
                 delay(200)
@@ -80,12 +105,12 @@ class GeneralActivity : AppCompatActivity() {
         }
 
 
-        thread{
-            while (true){
-                Thread.sleep(100)
-                println("Count down 2 ${Thread.currentThread()} ${isData}")
-            }
-        }
+//        thread {
+//            while (true) {
+//                Thread.sleep(100)
+//                println("Count down 2 ${Thread.currentThread()} ${isData}")
+//            }
+//        }
 
 //        Thread.sleep(30000)
 
