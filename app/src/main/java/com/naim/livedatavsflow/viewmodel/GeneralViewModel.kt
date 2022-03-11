@@ -21,8 +21,12 @@ class GeneralViewModel(private val appDatabase: AppDatabase) : ViewModel() {
     val bookList = _bookList
     val gotoNextActivity = _gotoNextActivity
     val title = _title
+    var toggleTextView = MutableLiveData(false)
+    var toggleTextViewStateFlow = MutableStateFlow(false)
     val titleStateFlow = _titleStateFlow
     val titleSharedFlow = _titleSharedFlow
+    val toggleLiveData: LiveData<Boolean>
+        get() = toggleTextView
     val gotoNextActivitySharedFlow = _gotoNextActivitySharedFlow.asSharedFlow()
     fun setGotoNextActivity(value: Boolean) {
 //        _gotoNextActivity.value = value
@@ -70,5 +74,13 @@ class GeneralViewModel(private val appDatabase: AppDatabase) : ViewModel() {
             println("Emit $it")
             emit(it)
         }
+    }
+
+    fun makeVisible() {
+        toggleTextView.value = true
+    }
+
+    fun makeGone() {
+        toggleTextView.value = false
     }
 }

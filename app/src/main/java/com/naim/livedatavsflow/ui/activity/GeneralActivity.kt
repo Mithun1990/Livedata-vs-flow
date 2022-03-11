@@ -31,8 +31,8 @@ class GeneralActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityGeneralBinding.inflate(layoutInflater)
         setContentView(binding?.root)
-
-
+        binding?.vm= viewModel
+        binding?.executePendingBindings()
         binding?.button?.setOnClickListener {
             lifecycleScope.launchWhenCreated {
                 viewModel.titleStateFlow.collect {
